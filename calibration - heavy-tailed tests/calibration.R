@@ -156,14 +156,14 @@ calibration.lineplot <- function(nu.vec = c(1, 30),
 # ----- Calibration Heatmaps -----
 calibration.heatmaps <- function(alpha.vec = c( 0.01, 0.005,0.001,0.0005,0.0001),
                                  nu.vec = c(1, 5, 15, 30),
-                                 d = 10, n = 1e6,
+                                 d = 10, n = 1e6, rho=0.5,
                                  cor.type = "autoreg") {
   mat.pareto <- matrix(NA, nrow = length(alpha.vec), ncol = length(nu.vec))
   mat.cauchy <- matrix(NA, nrow = length(alpha.vec), ncol = length(nu.vec))
   
   for (i in seq_along(nu.vec)) {
     nu <- nu.vec[i]
-    pval<-get_or_load_pval(d=d,n=n,nu=nu,cor.type=cor.type)
+    pval<-get_or_load_pval(d=d,n=n,nu=nu, rho=rho, cor.type=cor.type)
     
     for (j in seq_along(alpha.vec)) {
       alpha <- alpha.vec[j]
@@ -206,5 +206,5 @@ calibration.heatmaps <- function(alpha.vec = c( 0.01, 0.005,0.001,0.0005,0.0001)
 calibration.lineplot(n=1e6,d=10,nu.vec = c(0.5, 1, 30), rho=0.5,cor.type = "autoreg")
 
 # Calibration heatmaps
-#calibration.heatmaps(n=1e6,d=10,nu.vec = c(0.1,0.5, 1, 5, 15, 30),
-#                     cor.type = "exch")
+calibration.heatmaps(n=1e6,d=10,nu.vec = c(0.1,0.5, 1, 5, 15, 30),rho=0.5,
+                     cor.type = "autoreg")
