@@ -35,9 +35,9 @@ if (!is.null(script_path)) {
 
 source("../utils.R")
 
-get.pval <- function(d = 10, n = 1e6, nu = 1, cor.type = "autoreg") {
+get.pval <- function(d = 10, n = 1e6, nu = 1, rho=0.5,cor.type = "autoreg") {
   set.seed(1234) 
-  cor.mat <- get.cor(d, cor.type = cor.type)
+  cor.mat <- get.cor(d,rho=rho, cor.type = cor.type)
   
   # simulate under null (mu = 0)
   X <- mvrnorm(n = n, mu = rep(0, d), Sigma = cor.mat)
@@ -54,7 +54,7 @@ get.pval <- function(d = 10, n = 1e6, nu = 1, cor.type = "autoreg") {
   # -----------------------------
   dir.create("pval_data", showWarnings = FALSE)
   
-  filename <- sprintf("pval_data/pvals_d%d_nu%g_%s.csv", d, nu, cor.type)
+  filename <- sprintf("../pval_data/pvals_d%d_nu%g_%s_rho%g.csv", d, nu, cor.type,rho)
   write.csv(pval, file = filename, row.names = FALSE)
   
   message("Saved p-values to: ", filename)
@@ -65,13 +65,14 @@ get.pval <- function(d = 10, n = 1e6, nu = 1, cor.type = "autoreg") {
 get_or_load_pval <- function(d = 10,
                              n = 1e6,
                              nu = 1,
+                             rho=0.5,
                              cor.type = "autoreg") {
   
   # ensure folder exists
-  dir.create("pval_data", showWarnings = FALSE)
+  dir.create("../pval_data", showWarnings = FALSE)
   
   # full path to CSV file
-  filename <- sprintf("pval_data/pvals_d%d_nu%g_%s.csv", d, nu, cor.type)
+  filename <- sprintf("../pval_data/pvals_d%d_nu%g_%s_rho%g.csv", d, nu, cor.type,rho)
   
   # ------------------------------------------------------------
   # CASE 1: file already exists → read it
@@ -97,7 +98,7 @@ get_or_load_pval <- function(d = 10,
               "\nRequired: n = ", n, ", d = ", d,
               "\nRegenerating with get.pval() ...")
       
-      pval <- get.pval(d = d, n = n, nu = nu, cor.type = cor.type)
+      pval <- get.pval(d = d, n = n, nu = nu,rho=rho, cor.type = cor.type)
       return(pval)
     }
   }
@@ -108,7 +109,7 @@ get_or_load_pval <- function(d = 10,
   message("File not found: ", filename,
           "\nGenerating new p-values with get.pval()...")
   
-  pval <- get.pval(d = d, n = n, nu = nu, cor.type = cor.type)
+  pval <- get.pval(d = d, n = n, nu = nu, rho=rho, cor.type = cor.type)
   return(pval)
 }
 
@@ -118,20 +119,13 @@ get_or_load_pval <- function(d = 10,
 # ----- Calibration Line Plot -----
 calibration.lineplot <- function(nu.vec = c(1, 30),
                                  alpha.vec = 10^seq(log10(0.001), log10(0.01), length.out = 100),
-                                 d = 10, n = 1e6,
+                                 d = 10, n = 1e6, rho=0.5,
                                  cor.type = "autoreg") {
   par(mfrow = c(1, length(nu.vec)), mar = c(4, 4, 3, 1), oma = c(0, 0, 4, 0))
   
   for (nu in nu.vec) {
     message(sprintf("Running nu = %f", nu))
-    #cor.mat <- get.cor(d, cor.type = cor.type)
-    
-    # simulate under null (mu = 0)
-    #X <- mvrnorm(n = n, mu = rep(0, d), Sigma = cor.mat)
-    #denom <- replicate(n, sqrt(rgamma(n=1,shape = nu/2,rate = 1/2)/nu))
-    #X <- X / denom
-    #pval <- 1 - pt(X, df = nu)
-    pval<-get_or_load_pval(d=d,n=n,nu=nu,cor.type=cor.type)
+    pval<-get_or_load_pval(d=d,n=n,nu=nu,rho=rho,cor.type=cor.type)
     
     rejections <- t(sapply(alpha.vec, function(alpha) {
       p.pareto <- combine.test(pval, method = "Pareto")
@@ -200,9 +194,6 @@ calibration.heatmaps <- function(alpha.vec = c( 0.01, 0.005,0.001,0.0005,0.0001)
          x = TeX("$\\nu$"), y = TeX("$\\alpha$")) +
     theme_minimal(base_size = 13) +
     theme(
-      # draw a border around each facet panel:
-      #panel.border  = element_rect(colour = "black", fill = NA, linewidth = 0.7),
-      # optional: add a bit more space between the two facets
       panel.spacing = grid::unit(1.75, "lines")
     )
   
@@ -212,7 +203,7 @@ calibration.heatmaps <- function(alpha.vec = c( 0.01, 0.005,0.001,0.0005,0.0001)
 
 
 # Calibration line plots
-calibration.lineplot(n=1e6,d=10,nu.vec = c(0.5, 1, 30), cor.type = "exch")
+calibration.lineplot(n=1e6,d=10,nu.vec = c(0.5, 1, 30), rho=0.5,cor.type = "autoreg")
 
 # Calibration heatmaps
 #calibration.heatmaps(n=1e6,d=10,nu.vec = c(0.1,0.5, 1, 5, 15, 30),
