@@ -140,7 +140,7 @@ calibration.lineplot <- function(nu.vec = c(1, 30),
          main=TeX(sprintf("ν = %.2f", nu)))
     lines(1 / alpha.vec, ratio[,2], type = "l", col = "blue")
     abline(h = 1, lty = 2)
-    legend("bottomright", legend=c("PCT", "CCT"), col=c("red", "blue"), pch=1)
+    #legend("bottomright", legend=c("PCT", "CCT"), col=c("red", "blue"), pch=1)
     
   }
   
@@ -198,7 +198,7 @@ calibration.heatmaps <- function(alpha.vec = c( 0.01, 0.005,0.001,0.0005,0.0001)
 
 
 # Calibration line plots
-calibration.lineplot(n=1e6,d=10,nu.vec = c(0.5, 10, 30), rho=0.5,cor.type = "autoreg")
+calibration.lineplot(n=1e6,d=10,nu.vec = c(0.5, 3, 15), rho=0.3,cor.type = "autoreg")
 
 # Calibration heatmaps
 calibration.heatmaps(n=1e6,d=10,nu.vec = c(0.1,0.5, 1, 5, 15, 30),rho=0.5,

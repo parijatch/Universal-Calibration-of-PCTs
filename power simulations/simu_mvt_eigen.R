@@ -125,33 +125,53 @@ d.vec <- c(3, 10, 20)
 eig.type <- "top"
 cor.type<- "autoreg" 
 
-par(mfrow = c(length(nu.vec), length(d.vec) + 1), mar = c(4, 4, 3, 1), oma = c(0, 0, 4, 0))
+par(
+  mfrow = c(length(nu.vec), length(d.vec)),
+  mar = c(2.5, 2.5, 3, 1),   # tighter inner margins
+  oma = c(4, 4, 0, 0)       # space for shared x/y labels
+)
 
-for (nu in nu.vec) {
-  for (d in d.vec) {
+for (i in seq_along(nu.vec)) {
+  nu <- nu.vec[i]
+  for (j in seq_along(d.vec)) {
+    d <- d.vec[j]
+    
     message(sprintf("Running nu=%d, d=%d", nu, d))
     
-    power.df <- run.simu.eig(n=1e4, d=d, nu=nu, eig.type=eig.type,
-                             effect.size.vec=seq(0, 40, length.out=20),
-                             cor.type=cor.type, alpha=0.05, .plot=FALSE)
+    power.df <- run.simu.eig(
+      n = 1e4, d = d, nu = nu, eig.type = eig.type,
+      effect.size.vec = seq(0, 40, length.out = 20),
+      cor.type = cor.type, alpha = 0.05, .plot = FALSE
+    )
     
-    power.wide <- dcast(power.df, tau ~ method, value.var="power")
+    power.wide <- dcast(power.df, tau ~ method, value.var = "power")
     
-    eps <- 1e-7  # small constant to avoid division by zero
+    eps <- 1e-7
     LRT.safe <- pmax(power.wide$LRT, eps)
     rel.pareto <- power.wide$Pareto / LRT.safe
     rel.cauchy <- power.wide$Cauchy / LRT.safe
-
-    plot(power.wide$tau, rel.pareto, type="b",
-         ylim=c(0, max(1.5, rel.pareto, rel.cauchy, na.rm=TRUE)),
-         xlab=TeX(r"(effect size = $\|\mu\|_2$)"), ylab="Relative power vs LRT",
-         col="red",
-         main=TeX(sprintf("ν=%d, d=%d", nu, d)))
-    points(power.wide$tau, rel.cauchy, type="b", col="blue")
-    abline(h=1, lty=2)
+    
+    plot(
+      power.wide$tau, rel.pareto, type = "b",
+      ylim = c(0, max(1.5, rel.pareto, rel.cauchy, na.rm = TRUE)),
+      xlab = "", ylab = "",
+      col = "red",
+      main = TeX(sprintf("ν=%d, d=%d", nu, d))
+    )
+    
+    points(power.wide$tau, rel.cauchy, type = "b", col = "blue")
+    abline(h = 1, lty = 2)
   }
-  plot.new()
-  legend("center", legend=c("Pareto/LRT", "Cauchy/LRT"), col=c("red", "blue"), pch=1, cex=1.2, bty="n")
 }
+
+## Shared axis labels
+mtext(
+  TeX(r"(effect size = $\|\mu\|_2$)"),
+  side = 1, outer = TRUE, line = 2
+)
+mtext(
+  "Relative power vs LRT",
+  side = 2, outer = TRUE, line = 2
+)
 
 par(mfrow = c(1, 1))
