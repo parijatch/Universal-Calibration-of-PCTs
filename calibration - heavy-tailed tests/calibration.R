@@ -121,14 +121,35 @@ calibration.lineplot <- function(nu.vec = c(1, 30),
                                  alpha.vec = 10^seq(log10(0.001), log10(0.01), length.out = 100),
                                  d = 10, n = 1e6, rho=0.5,
                                  cor.type = "autoreg") {
+  panel <- 3.5
+  if (cor.type == "autoreg"){
+  png("../plots/PCT_CCT_lineplot.png",
+      width  = panel * length(nu.vec),
+      height = panel + 1.2, 
+      units  = "in", res = 300)
+  } else {
+    png("../plots/PCT_CCT_lineplot_exch.png",
+        width  = panel * length(nu.vec),
+        height = panel + 1.2, 
+        units  = "in", res = 300)
+  }
   par(
     mfrow = c(1, length(nu.vec)),
-    mar = c(3, 3, 3, 1),   # tighter inner margins
-    oma = c(4, 4, 0, 0)   # space for shared x/y labels
+    mar = c(2.2, 2.2, 2.6, 0.8),
+    oma = c(1.0, 4.6, 0.2, 0.2),
+    pty = "s",
+    mgp = c(2.0, 0.5, 0) 
   )
   
   for (nu in nu.vec) {
     message(sprintf("Running nu = %f", nu))
+    
+    ## format nu nicely for the subtitle
+    nu_label <- if (abs(nu - round(nu)) < 1e-8) {
+      sprintf("%d", as.integer(round(nu)))
+    } else {
+      sprintf("%.2f", nu)
+    }
     
     pval <- get_or_load_pval(
       d = d, n = n, nu = nu, rho = rho, cor.type = cor.type
@@ -144,26 +165,20 @@ calibration.lineplot <- function(nu.vec = c(1, 30),
     
     plot(
       1 / alpha.vec, ratio[,1],
-      type = "l", col = "red", ylim = c(0, max(ratio)),
+      type = "l", col = "red", lwd = 2.5, lty = 3,
+      ylim = c(0, max(ratio)),
       xlab = "", ylab = "",
-      main = TeX(sprintf("ν = %.2f", nu))
+      main = TeX(sprintf("ν = %s", nu_label))
     )
     
-    lines(1 / alpha.vec, ratio[,2], col = "blue")
+    lines(1 / alpha.vec, ratio[,2], lwd = 2.5, col = "blue")
     abline(h = 1, lty = 2)
   }
   
   ## Shared axis labels
-  mtext(
-    TeX("$1/\\alpha$"),
-    side = 1, outer = TRUE, line = 2
-  )
-  
-  mtext(
-    TeX("Empirical Rejection Rate / $\\alpha$"),
-    side = 2, outer = TRUE, line = 2
-  )
-  
+  mtext(TeX("$1/\\alpha$"), side = 1, outer = TRUE, line = 0.2)
+  mtext(TeX("Empirical Rejection Rate / $\\alpha$"), side = 2, outer = TRUE, line = 2)
+  dev.off()
   par(mfrow = c(1, 1))
   
 }
