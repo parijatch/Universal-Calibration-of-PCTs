@@ -122,7 +122,7 @@ run.simu.eig <- function(n=1e4, d, nu, effect.size.vec=seq(0, 40, length.out=20)
  ###Plotting###
 nu.vec <- c(1, 10, 25)     
 d.vec <- c(3, 10, 20)     
-eig.type <- "top"
+eig.type <- "bottom"
 cor.type<- "autoreg" 
 
 par(
@@ -170,7 +170,7 @@ mtext(
   side = 1, outer = TRUE, line = 2
 )
 mtext(
-  "Relative power vs LRT",
+  "Power relative to LRT",
   side = 2, outer = TRUE, line = 2
 )
 
