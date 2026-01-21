@@ -176,8 +176,12 @@ calibration.lineplot <- function(nu.vec = c(1, 30),
   }
   
   ## Shared axis labels
-  mtext(TeX("$1/\\alpha$"), side = 1, outer = TRUE, line = 0.2)
-  mtext(TeX("Empirical Rejection Rate / $\\alpha$"), side = 2, outer = TRUE, line = 2)
+  mtext(TeX("$1/\\alpha$"), side = 1, outer = TRUE, line = 0.2,cex=1.2)
+  mtext(TeX("Empirical Rejection Rate / $\\alpha$"),
+        side = 2,
+        outer = TRUE,
+        line = 2,
+        cex=1.2)
   dev.off()
   par(mfrow = c(1, 1))
   
