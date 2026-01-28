@@ -1,6 +1,6 @@
 # Universal_Calibration_of_PCTs
 
-This repository contains the code used to generate the simulation results presented in [1].
+This repository contains the code used to generate the simulation and application results presented in [1].
 
 ## Repository structure
 
